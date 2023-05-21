@@ -15,9 +15,9 @@ type
   SomeMatrix*[T] = concept mat, var mvar, type M
     M.typeValue is T
 
-    # rows(mat) is int
-    # cols(mat) is int
-    # size(mat) is int
+    rows(mat) is int
+    cols(mat) is int
+    size(mat) is int
     
     mat[int, int] is T
     mvar[int, int] = T
@@ -49,6 +49,11 @@ when isMainModule:
       data: seq[T]
       m, n*: int
 
+  proc initMatrixImpl*[T](m, n: int): MatrixImpl[T] = 
+    result.data = newSeq[T](m*n)
+    result.m = m
+    result.n = n
+
   # Adapt the Matrix type to the concept's requirements
   proc rows*(M: MatrixImpl): int = M.m
   proc cols*(M: MatrixImpl): int = M.n
@@ -62,9 +67,10 @@ when isMainModule:
     M.data[m * M.rows + n] = v
 
   var
-    m: MatrixImpl[int]
-    projectionMatrix: MatrixImpl[float]
+    m: MatrixImpl[int] = initMatrixImpl[int](3, 3)
+    projectionMatrix: MatrixImpl[float] = initMatrixImpl[float](3, 3)
 
-  let m1: MatrixImpl = m.transposed()
-  # echo m.transposed.determinant
+  let m1: MatrixImpl[int] = m.transposed()
+  echo m.transposed
+  echo m.transposed.determinant
   setPerspectiveProjection projectionMatrix
