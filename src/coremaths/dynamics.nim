@@ -4,59 +4,63 @@ import std/typetraits
 type
   SomeVector*[T] = concept vec, var vvar, type V
     V.typeValue is T
-    V.cols is int
-    V.size is int
+    V.cols() is int
+    V.size() is int
     
     vec[int, int] is T
     vvar[int, int] = T
   
-  SomeMatrix*[R, C: static int; T] = concept mat, var mvar, type M
-    M.typeValue is T
-    M.rows == R
-    M.cols == C
+  SomeMatrix*[T] = concept mat, var mvar, type M
+    M.typeValue() is T
+    M.rows() is int
+    M.cols() is int
+    M.size() is int
     
     mat[int, int] is T
     mvar[int, int] = T
     
-    type TransposedType = stripGenericParams(M)[C, R, T]
   
-  SomeSquareMatrix*[N: static int, T] = SomeMatrix[N, N, T]
+  SomeSquareMatrix*[T] = SomeMatrix[T]
   
-  SomeTransform3D* = SomeMatrix[4, 4, float]
+  SomeTransform3D* = SomeMatrix[float]
 
-# Example Procs
-# =============
+when isMainModule:
+  # Example Procs
+  # =============
 
-proc transposed*(m: SomeMatrix): m.TransposedType =
-  for r in 0 ..< m.R:
-    for c in 0 ..< m.C:
-      result[r, c] = m[c, r]
+  proc transposed*(m: SomeMatrix): SomeMatrix =
+    for r in 0 ..< m.rows:
+      for c in 0 ..< m.cols:
+        result[r, c] = m[c, r]
 
-proc determinant*(m: SomeSquareMatrix): int =
-  result = 0
+  proc determinant*(m: SomeMatrix): int =
+    result = 0
 
-proc setPerspectiveProjection*(m: SomeTransform3D) =
-  echo "set"
+  proc setPerspectiveProjection*(m: SomeTransform3D) =
+    echo "set"
 
-type
-  MatrixImpl*[M, N: static int; T] = object
-    data: array[M*N, T]
+  type
+    MatrixImpl*[T] = object
+      data: ref UncheckedArray[T]
+      m, n*: int
 
-proc `[]`*(M: MatrixImpl; m, n: int): M.T =
-  M.data[m * M.N + n]
+  # Adapt the Matrix type to the concept's requirements
+  proc rows*(M: MatrixImpl): int = M.m
+  proc cols*(M: MatrixImpl): int = M.n
+  proc size*(M: MatrixImpl): int = M.m*M.n
+  template typeValue*(M: typedesc[MatrixImpl]): typedesc = M.T
 
-proc `[]=`*(M: var MatrixImpl; m, n: int; v: M.T) =
-  M.data[m * M.N + n] = v
+  proc `[]`*(M: MatrixImpl; m, n: int): M.T =
+    M.data[m * M.rows + n]
 
-# Adapt the Matrix type to the concept's requirements
-template rows*(M: typedesc[MatrixImpl]): int = M.M
-template cols*(M: typedesc[MatrixImpl]): int = M.N
-template typeValue*(M: typedesc[MatrixImpl]): typedesc = M.T
+  proc `[]=`*(M: var MatrixImpl; m, n: int; v: M.T) =
+    M.data[m * M.rows + n] = v
 
 
-var
-  m: MatrixImpl[3, 3, int]
-  projectionMatrix: MatrixImpl[4, 4, float]
+  var
+    m: MatrixImpl[int]
+    projectionMatrix: MatrixImpl[float]
 
-echo m.transposed.determinant
-setPerspectiveProjection projectionMatrix
+  echo m.transposed()
+  # echo m.transposed.determinant
+  # setPerspectiveProjection projectionMatrix
