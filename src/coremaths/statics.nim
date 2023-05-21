@@ -5,6 +5,7 @@ type
     V.typeValue is T
     V.cols == N
     V.size == N
+    V.dimA == N
     
     vector[int, int] is T
     vvar[int, int] = T
@@ -17,6 +18,8 @@ type
     M.rows == R
     M.cols == C
     M.size == R * C
+    M.dimA == R
+    M.dimB == C
     
     matrix[int, int] is T
     mvar[int, int] = T
@@ -30,16 +33,34 @@ type
 
   SomeTensor3*[A, B, C: static int; T] = concept tensor, var mvar, type T
     T.typeValue is T
+    T.rows == A
+    T.cols == B
+    T.size == A*B*C
     T.dimA == A
     T.dimB == B
     T.dimC == C
-    T.size == A*B*C
     
     tensor[int, int, int] is T
     mvar[int, int, int] = T
     
     mvar.init(int, int, int)
     type TransposedType = stripGenericParams(T)[A, B, C, T]
+  
+  SomeTensor4*[A, B, C, D: static int; T] = concept tensor, var mvar, type T
+    T.typeValue is T
+    T.rows == A
+    T.cols == B
+    T.size == A*B*C*D
+    T.dimA == A
+    T.dimB == B
+    T.dimC == C
+    T.dimD == D
+    
+    tensor[int, int, int, int] is T
+    mvar[int, int, int, int] = T
+    
+    mvar.init(int, int, int, int)
+    type TransposedType = stripGenericParams(T)[A, B, C, D, T]
   
 
 when isMainModule:
@@ -74,6 +95,8 @@ when isMainModule:
   template rows*(M: typedesc[MatrixImpl]): int = M.M
   template cols*(M: typedesc[MatrixImpl]): int = M.N
   template size*(M: typedesc[MatrixImpl]): int = M.M * M.N
+  template dimA*(M: typedesc[MatrixImpl]): int = M.M
+  template dimB*(M: typedesc[MatrixImpl]): int = M.N
   template typeValue*(M: typedesc[MatrixImpl]): typedesc = M.T
 
   var
