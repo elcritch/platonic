@@ -2,15 +2,13 @@
 import std/typetraits
 
 type
-  AVector*[N: static int; T] = concept vec, var vvar, type V
+  SomeVector*[T] = concept vec, var vvar, type V
     V.typeValue is T
-    V.cols == N
-    V.size == N
+    V.cols is int
+    V.size is int
     
     vec[int, int] is T
     vvar[int, int] = T
-
-    type TransposedType = stripGenericParams(M)[C, R, T]
   
   SomeMatrix*[R, C: static int; T] = concept mat, var mvar, type M
     M.typeValue is T

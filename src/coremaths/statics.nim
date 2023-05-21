@@ -1,5 +1,3 @@
-
-
 import std/typetraits
 
 type
@@ -17,6 +15,7 @@ type
     M.typeValue is T
     M.rows == R
     M.cols == C
+    M.size == R * C
     
     mat[int, int] is T
     mvar[int, int] = T
@@ -56,8 +55,8 @@ when isMainModule:
   # Adapt the Matrix type to the concept's requirements
   template rows*(M: typedesc[MatrixImpl]): int = M.M
   template cols*(M: typedesc[MatrixImpl]): int = M.N
+  template size*(M: typedesc[MatrixImpl]): int = M.M * M.N
   template typeValue*(M: typedesc[MatrixImpl]): typedesc = M.T
-
 
   var
     m: MatrixImpl[3, 3, int]
