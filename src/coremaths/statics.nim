@@ -9,6 +9,7 @@ type
     vec[int, int] is T
     vvar[int, int] = T
 
+    vvar.init(int)
     type TransposedType = stripGenericParams(V)[N, T]
   
   SomeMatrix*[R, C: static int; T] = concept mat, var mvar, type M
@@ -20,6 +21,7 @@ type
     mat[int, int] is T
     mvar[int, int] = T
     
+    mvar.init(int, int)
     type TransposedType = stripGenericParams(M)[C, R, T]
   
   SomeSquareMatrix*[N: static int, T] = SomeMatrix[N, N, T]
@@ -45,6 +47,9 @@ when isMainModule:
   type
     MatrixImpl*[M, N: static int; T] = object
       data: array[M*N, T]
+
+  proc init*(M: var MatrixImpl, m, n: int) =
+    discard
 
   proc `[]`*(M: MatrixImpl; m, n: int): M.T =
     M.data[m * M.N + n]

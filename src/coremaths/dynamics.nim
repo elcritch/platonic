@@ -10,6 +10,7 @@ type
     vec[int, int] is T
     vvar[int, int] = T
   
+    vvar.init()
     type TransposedType = stripGenericParams(V)[T]
 
   SomeMatrix*[T] = concept mat, var mvar, type M
@@ -34,6 +35,7 @@ when isMainModule:
   # =============
 
   proc transposed*(m: SomeMatrix): m.TransposedType =
+    result.init(m.rows, m.cols)
     for r in 0 ..< m.rows:
       for c in 0 ..< m.cols:
         result[r, c] = m[c, r]
@@ -53,6 +55,11 @@ when isMainModule:
     result.data = newSeq[T](m*n)
     result.m = m
     result.n = n
+
+  proc init*[T](mat: var MatrixImpl[T], m, n: int) =
+    mat.data = newSeq[T](m*n)
+    mat.m = m
+    mat.n = n
 
   # Adapt the Matrix type to the concept's requirements
   proc rows*(M: MatrixImpl): int = M.m
