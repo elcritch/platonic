@@ -3,13 +3,13 @@
 import std/typetraits
 
 type
-  SomeVector*[N: static int; T] = concept vec, var vecVar, type V
+  SomeVector*[N: static int; T] = concept vec, var vvar, type V
     V.typeValue is T
     V.cols == N
     V.size == N
     
     vec[int, int] is T
-    vecVar[int, int] = T
+    vvar[int, int] = T
   
   SomeMatrix*[R, C: static int; T] = concept mat, var mvar, type M
     M.typeValue is T
