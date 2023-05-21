@@ -10,6 +10,8 @@ type
     
     vec[int, int] is T
     vvar[int, int] = T
+
+    type TransposedType = stripGenericParams(V)[N, T]
   
   SomeMatrix*[R, C: static int; T] = concept mat, var mvar, type M
     M.typeValue is T
@@ -25,39 +27,41 @@ type
   
   SomeTransform3D* = SomeMatrix[4, 4, float]
 
-# Example Procs
-# =============
 
-proc transposed*(m: SomeMatrix): m.TransposedType =
-  for r in 0 ..< m.R:
-    for c in 0 ..< m.C:
-      result[r, c] = m[c, r]
+when isMainModule:
+  # Example Procs
+  # =============
 
-proc determinant*(m: SomeSquareMatrix): int =
-  result = 0
+  proc transposed*(m: SomeMatrix): m.TransposedType =
+    for r in 0 ..< m.R:
+      for c in 0 ..< m.C:
+        result[r, c] = m[c, r]
 
-proc setPerspectiveProjection*(m: SomeTransform3D) =
-  echo "set"
+  proc determinant*(m: SomeSquareMatrix): int =
+    result = 0
 
-type
-  MatrixImpl*[M, N: static int; T] = object
-    data: array[M*N, T]
+  proc setPerspectiveProjection*(m: SomeTransform3D) =
+    echo "set"
 
-proc `[]`*(M: MatrixImpl; m, n: int): M.T =
-  M.data[m * M.N + n]
+  type
+    MatrixImpl*[M, N: static int; T] = object
+      data: array[M*N, T]
 
-proc `[]=`*(M: var MatrixImpl; m, n: int; v: M.T) =
-  M.data[m * M.N + n] = v
+  proc `[]`*(M: MatrixImpl; m, n: int): M.T =
+    M.data[m * M.N + n]
 
-# Adapt the Matrix type to the concept's requirements
-template rows*(M: typedesc[MatrixImpl]): int = M.M
-template cols*(M: typedesc[MatrixImpl]): int = M.N
-template typeValue*(M: typedesc[MatrixImpl]): typedesc = M.T
+  proc `[]=`*(M: var MatrixImpl; m, n: int; v: M.T) =
+    M.data[m * M.N + n] = v
+
+  # Adapt the Matrix type to the concept's requirements
+  template rows*(M: typedesc[MatrixImpl]): int = M.M
+  template cols*(M: typedesc[MatrixImpl]): int = M.N
+  template typeValue*(M: typedesc[MatrixImpl]): typedesc = M.T
 
 
-var
-  m: MatrixImpl[3, 3, int]
-  projectionMatrix: MatrixImpl[4, 4, float]
+  var
+    m: MatrixImpl[3, 3, int]
+    projectionMatrix: MatrixImpl[4, 4, float]
 
-echo m.transposed.determinant
-setPerspectiveProjection projectionMatrix
+  echo m.transposed.determinant
+  setPerspectiveProjection projectionMatrix
