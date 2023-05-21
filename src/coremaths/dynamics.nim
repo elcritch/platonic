@@ -10,14 +10,19 @@ type
     vec[int, int] is T
     vvar[int, int] = T
   
+    type TransposedType = stripGenericParams(V)[T]
+
   SomeMatrix*[T] = concept mat, var mvar, type M
-    M.typeValue() is T
-    M.rows() is int
-    M.cols() is int
-    M.size() is int
+    M.typeValue is T
+
+    rows(mat) is int
+    cols(mat) is int
+    size(mat) is int
     
     mat[int, int] is T
     mvar[int, int] = T
+
+    type TransposedType = stripGenericParams(M)[T]
     
   
   SomeSquareMatrix*[T] = SomeMatrix[T]
@@ -28,7 +33,7 @@ when isMainModule:
   # Example Procs
   # =============
 
-  proc transposed*(m: SomeMatrix): SomeMatrix =
+  proc transposed*[M: SomeMatrix](m: M): M =
     for r in 0 ..< m.rows:
       for c in 0 ..< m.cols:
         result[r, c] = m[c, r]
@@ -41,7 +46,7 @@ when isMainModule:
 
   type
     MatrixImpl*[T] = object
-      data: ref UncheckedArray[T]
+      data: seq[T]
       m, n*: int
 
   # Adapt the Matrix type to the concept's requirements
@@ -50,17 +55,19 @@ when isMainModule:
   proc size*(M: MatrixImpl): int = M.m*M.n
   template typeValue*(M: typedesc[MatrixImpl]): typedesc = M.T
 
+  proc `$`*(M: MatrixImpl): string =
+    $M.data
+
   proc `[]`*(M: MatrixImpl; m, n: int): M.T =
     M.data[m * M.rows + n]
 
   proc `[]=`*(M: var MatrixImpl; m, n: int; v: M.T) =
     M.data[m * M.rows + n] = v
 
-
   var
     m: MatrixImpl[int]
     projectionMatrix: MatrixImpl[float]
 
-  echo m.transposed()
+  let m1: MatrixImpl = m.transposed()
   # echo m.transposed.determinant
-  # setPerspectiveProjection projectionMatrix
+  setPerspectiveProjection projectionMatrix
