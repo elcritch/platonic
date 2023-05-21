@@ -1,24 +1,24 @@
 import std/typetraits
 
 type
-  SomeVector*[N: static int; T] = concept vec, var vvar, type V
+  SomeVector*[N: static int; T] = concept vector, var vvar, type V
     V.typeValue is T
     V.cols == N
     V.size == N
     
-    vec[int, int] is T
+    vector[int, int] is T
     vvar[int, int] = T
 
     vvar.init(int)
     type TransposedType = stripGenericParams(V)[N, T]
   
-  SomeMatrix*[R, C: static int; T] = concept mat, var mvar, type M
+  SomeMatrix*[R, C: static int; T] = concept matrix, var mvar, type M
     M.typeValue is T
     M.rows == R
     M.cols == C
     M.size == R * C
     
-    mat[int, int] is T
+    matrix[int, int] is T
     mvar[int, int] = T
     
     mvar.init(int, int)
@@ -28,6 +28,19 @@ type
   
   SomeTransform3D* = SomeMatrix[4, 4, float]
 
+  SomeTensor3*[A, B, C: static int; T] = concept tensor, var mvar, type T
+    T.typeValue is T
+    T.dimA == A
+    T.dimB == B
+    T.dimC == C
+    T.size == A*B*C
+    
+    tensor[int, int, int] is T
+    mvar[int, int, int] = T
+    
+    mvar.init(int, int, int)
+    type TransposedType = stripGenericParams(T)[A, B, C, T]
+  
 
 when isMainModule:
   # Example Procs
