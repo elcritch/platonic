@@ -62,5 +62,6 @@ when isMainModule:
     m: MatrixImpl[3, 3, int]
     projectionMatrix: MatrixImpl[4, 4, float]
 
+  echo m.transposed
   echo m.transposed.determinant
   setPerspectiveProjection projectionMatrix

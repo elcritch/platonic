@@ -15,9 +15,9 @@ type
   SomeMatrix*[T] = concept mat, var mvar, type M
     M.typeValue is T
 
-    rows(mat) is int
-    cols(mat) is int
-    size(mat) is int
+    # rows(mat) is int
+    # cols(mat) is int
+    # size(mat) is int
     
     mat[int, int] is T
     mvar[int, int] = T
@@ -33,7 +33,7 @@ when isMainModule:
   # Example Procs
   # =============
 
-  proc transposed*[M: SomeMatrix](m: M): M =
+  proc transposed*(m: SomeMatrix): m.TransposedType =
     for r in 0 ..< m.rows:
       for c in 0 ..< m.cols:
         result[r, c] = m[c, r]
@@ -54,9 +54,6 @@ when isMainModule:
   proc cols*(M: MatrixImpl): int = M.n
   proc size*(M: MatrixImpl): int = M.m*M.n
   template typeValue*(M: typedesc[MatrixImpl]): typedesc = M.T
-
-  proc `$`*(M: MatrixImpl): string =
-    $M.data
 
   proc `[]`*(M: MatrixImpl; m, n: int): M.T =
     M.data[m * M.rows + n]
