@@ -7,6 +7,6 @@
 
 import unittest
 
-import coremaths
+import platonic
 test "can add":
   check add(5, 5) == 10
