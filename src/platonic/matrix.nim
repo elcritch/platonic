@@ -78,8 +78,8 @@ when isMainModule:
   proc `[]`*(mat: MatrixImplF64; m, n: int): SomeNumber =
     mat.data[m * mat.rows() + n]
 
-  proc `[]=`*(M: var MatrixImplF64; m, n: int; v: SomeNumber) =
-    M.data[m * M.rows + n] = v
+  proc `[]=`*(mat: var MatrixImplF64; m, n: int; v: SomeNumber) =
+    mat.data[m * mat.rows + n] = v
 
   proc runMatrixImplF64() =
     var
@@ -111,20 +111,20 @@ when isMainModule:
       kInt64
 
     MatrixDyn* = object
-      data: seq[byte]
+      data: pointer
       m, n*: int
       skind: ScalarKind
 
   template dType*(M: typedesc[MatrixDyn]): typedesc = float64
 
   proc initMatrixDyn*(m, n: int, skind: ScalarKind): MatrixDyn = 
-    result.data = newSeq[byte](m*n*8)
+    result.data = alloc0[byte](m*n*8)
     result.m = m
     result.n = n
     result.skind = skind
 
   proc init*(mat: var MatrixDyn, m, n: int) =
-    mat.data = newSeq[byte](m*n*8)
+    mat.data = alloc0[byte](m*n*8)
     mat.m = m
     mat.n = n
     # result.skind = skind
@@ -135,10 +135,22 @@ when isMainModule:
   proc size*(mat: MatrixDyn): int = mat.m*mat.n
 
   proc `[]`*(mat: MatrixDyn; m, n: int): float64 =
-    mat.data[m * mat.rows() + n]
+    case mat.skind:
+    of kFloat64:
+      let data = cast[ptr UncheckedArray[float64]](mat.data)
+      data[m * mat.rows() + n]
+    of kInt64:
+      let data = cast[ptr UncheckedArray[int64]](mat.data)
+      data[m * mat.rows() + n].toFloat
 
-  proc `[]=`*(M: var MatrixDyn; m, n: int; v: float64) =
-    M.data[m * M.rows + n] = v
+  proc `[]=`*(mat: var MatrixDyn; m, n: int; v: float64) =
+    case mat.skind:
+    of kFloat64:
+      let data = cast[ptr UncheckedArray[float64]](mat.data)
+      data[m * mat.rows + n] = v
+    of kInt64:
+      let data = cast[ptr UncheckedArray[int64]](mat.data)
+      data[m * mat.rows + n] = v.toBiggestInt
 
   proc runMatrixDyn() =
     var
