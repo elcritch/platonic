@@ -125,6 +125,8 @@ when isMainModule:
 
   template dType*[M: MatrixDyn](typ: typedesc[M]): typedesc[float64] =
     float64
+  # template dType*[M: MatrixDyn](typ: typedesc[M]): typedesc[NumberGen] =
+  #   NumberGen
 
   proc initMatrixDyn*(m, n: int, skind: ScalarKind): MatrixDyn = 
     result.data = alloc0[byte](m*n*8)
