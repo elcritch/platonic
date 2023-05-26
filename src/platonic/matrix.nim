@@ -42,8 +42,8 @@ when isMainModule:
         if r == c:
           result[r, c] = value
 
-  proc determinant*(m: Matrix): int =
-    result = 0
+  proc determinant*[M: Matrix](m: M): M.dType =
+    result = NaN
 
   proc setPerspectiveProjection*(m: Transform3D) =
     echo "set"
