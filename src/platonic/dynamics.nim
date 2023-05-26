@@ -23,7 +23,7 @@ when isMainModule:
   # Example Procs
   # =============
 
-  proc transposed*(m: Matrix): m.TransposedType =
+  proc transposed*(m: Matrix): Matrix =
     result.init(m.rows, m.cols)
     for r in 0 ..< m.rows:
       for c in 0 ..< m.cols:
@@ -35,6 +35,8 @@ when isMainModule:
   proc setPerspectiveProjection*(m: Transform3D) =
     echo "set"
 
+
+when isMainModule:
   type
     MatrixImpl*[T] = object
       data: seq[T]
