@@ -29,6 +29,12 @@ when isMainModule:
       for c in 0 ..< m.cols:
         result[r, c] = m[c, r]
 
+  proc sum*[M: Matrix](m: M): M.dType =
+    result = default(M.dType)
+    for r in 0 ..< m.rows:
+      for c in 0 ..< m.cols:
+        result += m[c, r]
+
   proc determinant*(m: Matrix): int =
     result = 0
 
@@ -71,6 +77,7 @@ when isMainModule:
 
   let m1: MatrixImplF64 = m.transposed()
   echo "m: ", m
+  echo "m.sum: ", m.sum()
   echo "m1: ", m1
   echo "transposed: ", m.transposed
   echo "transposed:det: ", m.transposed.determinant
