@@ -134,10 +134,10 @@ when isMainModule:
   proc cols*(mat: MatrixDyn): int = mat.n
   proc size*(mat: MatrixDyn): int = mat.m*mat.n
 
-  proc `[]`*(mat: MatrixDyn; m, n: int): SomeNumber =
+  proc `[]`*(mat: MatrixDyn; m, n: int): float64 =
     mat.data[m * mat.rows() + n]
 
-  proc `[]=`*(M: var MatrixDyn; m, n: int; v: SomeNumber) =
+  proc `[]=`*(M: var MatrixDyn; m, n: int; v: float64) =
     M.data[m * M.rows + n] = v
 
   proc runMatrixDyn() =
