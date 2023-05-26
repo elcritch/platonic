@@ -111,7 +111,7 @@ when isMainModule:
       kFloat64
       kInt64
 
-    NumberDyn* = object
+    NumberGen* = object
       case skind*: ScalarKind
       of kFloat64:
         f64*: float64
@@ -123,8 +123,8 @@ when isMainModule:
       m, n*: int
       skind: ScalarKind
 
-  template dType*[M: MatrixDyn](typ: typedesc[M]): typedesc[NumberDyn] =
-    NumberDyn
+  template dType*[M: MatrixDyn](typ: typedesc[M]): typedesc[float64] =
+    float64
 
   proc initMatrixDyn*(m, n: int, skind: ScalarKind): MatrixDyn = 
     result.data = alloc0[byte](m*n*8)
@@ -143,14 +143,14 @@ when isMainModule:
   proc cols*(mat: MatrixDyn): int = mat.n
   proc size*(mat: MatrixDyn): int = mat.m*mat.n
 
-  proc `[]`*(mat: MatrixDyn; m, n: int): NumberDyn =
+  proc `[]`*(mat: MatrixDyn; m, n: int): float64 =
     case mat.skind:
     of kFloat64:
       let data = cast[ptr UncheckedArray[float64]](mat.data)
-      NumberDyn(skind: kFloat64, f64: data[m * mat.rows() + n])
+      data[m * mat.rows() + n]
     of kInt64:
       let data = cast[ptr UncheckedArray[int64]](mat.data)
-      NumberDyn(skind: kInt64, i64: data[m * mat.rows() + n])
+      data[m * mat.rows() + n].toBiggestFloat
 
   proc `[]=`*(mat: var MatrixDyn; m, n: int; v: float64) =
     case mat.skind:
@@ -160,6 +160,24 @@ when isMainModule:
     of kInt64:
       let data = cast[ptr UncheckedArray[int64]](mat.data)
       data[m * mat.rows + n] = v.toBiggestInt
+
+  # proc `[]`*(mat: MatrixDyn; m, n: int): NumberDyn =
+  #   case mat.skind:
+  #   of kFloat64:
+  #     let data = cast[ptr UncheckedArray[float64]](mat.data)
+  #     NumberDyn(skind: kFloat64, f64: data[m * mat.rows() + n])
+  #   of kInt64:
+  #     let data = cast[ptr UncheckedArray[int64]](mat.data)
+  #     NumberDyn(skind: kInt64, i64: data[m * mat.rows() + n])
+
+  # proc `[]=`*(mat: var MatrixDyn; m, n: int; v: float64) =
+  #   case mat.skind:
+  #   of kFloat64:
+  #     let data = cast[ptr UncheckedArray[float64]](mat.data)
+  #     data[m * mat.rows + n] = v
+  #   of kInt64:
+  #     let data = cast[ptr UncheckedArray[int64]](mat.data)
+  #     data[m * mat.rows + n] = v.toBiggestInt
 
   proc runMatrixDyn() =
     var
