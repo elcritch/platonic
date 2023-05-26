@@ -70,6 +70,8 @@ when isMainModule:
     projectionMatrix: MatrixImplF64 = initMatrixImplF64(3, 3)
 
   let m1: MatrixImplF64 = m.transposed()
+  echo "m: ", m
+  echo "m1: ", m1
   echo "transposed: ", m.transposed
   echo "transposed:det: ", m.transposed.determinant
   setPerspectiveProjection projectionMatrix
