@@ -19,6 +19,9 @@ type
   
   Transform3D* = Matrix
 
+template zero*[N: SomeNumber](m: typedesc[N]): N = 0
+template default*[N: SomeNumber](m: typedesc[N]): N = 0
+
 when isMainModule:
   # Example Procs
   # =============
@@ -30,7 +33,7 @@ when isMainModule:
         result[r, c] = m[c, r]
 
   proc sum*[M: Matrix](m: M): M.dType =
-    result = default(M.dType)
+    result = zero(M.dType)
     for r in 0 ..< m.rows:
       for c in 0 ..< m.cols:
         result += m[c, r]
