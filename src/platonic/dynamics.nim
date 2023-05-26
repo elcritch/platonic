@@ -38,37 +38,38 @@ when isMainModule:
 
 when isMainModule:
   type
-    MatrixImpl*[T] = object
-      data: seq[T]
+    MatrixImplF64* = object
+      data: seq[float64]
       m, n*: int
 
-  proc initMatrixImpl*[T](m, n: int): MatrixImpl[T] = 
-    result.data = newSeq[T](m*n)
+  template dType*(M: typedesc[MatrixImplF64]): typedesc = float64
+
+  proc initMatrixImplF64*(m, n: int): MatrixImplF64 = 
+    result.data = newSeq[MatrixImplF64.dType](m*n)
     result.m = m
     result.n = n
 
-  proc init*[T](mat: var MatrixImpl[T], m, n: int) =
+  proc init*[T](mat: var MatrixImplF64, m, n: int) =
     mat.data = newSeq[T](m*n)
     mat.m = m
     mat.n = n
 
   # Adapt the Matrix type to the concept's requirements
-  proc rows*(M: MatrixImpl): int = M.m
-  proc cols*(M: MatrixImpl): int = M.n
-  proc size*(M: MatrixImpl): int = M.m*M.n
-  template dType*(M: typedesc[MatrixImpl]): typedesc = M.T
+  proc rows*(mat: MatrixImplF64): int = mat.m
+  proc cols*(mat: MatrixImplF64): int = mat.n
+  proc size*(mat: MatrixImplF64): int = mat.m*mat.n
 
-  proc `[]`*(M: MatrixImpl; m, n: int): M.T =
-    M.data[m * M.rows + n]
+  proc `[]`*(mat: MatrixImplF64; m, n: int): MatrixImplF64.dType() =
+    mat.data[m * mat.rows() + n]
 
-  proc `[]=`*(M: var MatrixImpl; m, n: int; v: M.T) =
+  proc `[]=`*(M: var MatrixImplF64; m, n: int; v: MatrixImplF64.dType) =
     M.data[m * M.rows + n] = v
 
   var
-    m: MatrixImpl[int] = initMatrixImpl[int](3, 3)
-    projectionMatrix: MatrixImpl[float] = initMatrixImpl[float](3, 3)
+    m: MatrixImplF64 = initMatrixImplF64(3, 3)
+    projectionMatrix: MatrixImplF64 = initMatrixImplF64(3, 3)
 
-  let m1: MatrixImpl[int] = m.transposed()
+  let m1: MatrixImplF64 = m.transposed()
   echo m.transposed
   echo m.transposed.determinant
   setPerspectiveProjection projectionMatrix
