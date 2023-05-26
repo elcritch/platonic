@@ -4,7 +4,8 @@ import std/typetraits
 type
 
   Matrix* = concept mat, var mvar, type M
-    M.dType is typedesc
+    M.dType() is typedesc
+
     mat.cols() is int
     mat.size() is int
     
@@ -58,7 +59,7 @@ when isMainModule:
       data: seq[float64]
       m, n*: int
 
-  template dType*(M: typedesc[MatrixImplF64]): typedesc = float64
+  template dType*[M: MatrixImplF64](typ: typedesc[M]): typedesc = float64
 
   proc initMatrixImplF64*(m, n: int): MatrixImplF64 = 
     result.data = newSeq[MatrixImplF64.dType](m*n)
@@ -110,19 +111,20 @@ when isMainModule:
       kFloat64
       kInt64
 
+    NumberDyn* = object
+      case skind*: ScalarKind
+      of kFloat64:
+        f64*: float64
+      of kInt64:
+        i64*: int64
+    
     MatrixDyn* = object
       data: pointer
       m, n*: int
       skind: ScalarKind
 
-    NumberDyn* = object
-      case skind: ScalarKind
-      of kFloat64:
-        f64: float64
-      of kInt64:
-        i64: int64
-
-  template dType*(M: typedesc[MatrixDyn]): typedesc = NumberDyn
+  template dType*[M: MatrixDyn](typ: typedesc[M]): typeof(NumberDyn) =
+    NumberDyn
 
   proc initMatrixDyn*(m, n: int, skind: ScalarKind): MatrixDyn = 
     result.data = alloc0[byte](m*n*8)
