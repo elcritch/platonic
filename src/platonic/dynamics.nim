@@ -2,33 +2,22 @@
 import std/typetraits
 
 type
-  Vector*[T] = concept vec, var vvar, type V
-    V.typeValue is T
-    vec.cols() is int
-    vec.size() is int
-    
-    vec[int, int] is T
-    vvar[int, int] = T
-  
-    vvar.init()
-    type TransposedType = stripGenericParams(V)[T]
 
-  Matrix*[T] = concept mat, var mvar, type M
-    M.typeValue is T
-
-    rows(mat) is int
-    cols(mat) is int
-    size(mat) is int
+  Matrix* = concept mat, var mvar, type M
+    M.dType is typedesc
+    mat.cols() is int
+    mat.size() is int
     
-    mat[int, int] is T
-    mvar[int, int] = T
+    mat[int, int] is M.dType
+    mvar[int, int] = M.dType
+  
+    mvar.init(int)
 
-    type TransposedType = stripGenericParams(M)[T]
-    
+    # type TransposedType = stripGenericParams(M)[T]
   
-  SquareMatrix*[T] = Matrix[T]
+  SquareMatrix* = Matrix
   
-  Transform3D* = Matrix[float]
+  Transform3D* = Matrix
 
 when isMainModule:
   # Example Procs
@@ -65,7 +54,7 @@ when isMainModule:
   proc rows*(M: MatrixImpl): int = M.m
   proc cols*(M: MatrixImpl): int = M.n
   proc size*(M: MatrixImpl): int = M.m*M.n
-  template typeValue*(M: typedesc[MatrixImpl]): typedesc = M.T
+  template dType*(M: typedesc[MatrixImpl]): typedesc = M.T
 
   proc `[]`*(M: MatrixImpl; m, n: int): M.T =
     M.data[m * M.rows + n]
