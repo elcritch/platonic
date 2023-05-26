@@ -35,6 +35,13 @@ when isMainModule:
       for c in 0 ..< m.cols:
         result += m[c, r]
 
+  proc eye*[M: Matrix](typ: typedesc[M], m, n: int, value: M.dType = 1): M =
+    result.init(m, n)
+    for r in 0 ..< result.rows:
+      for c in 0 ..< result.cols:
+        if r == c:
+          result[r, c] = value
+
   proc determinant*(m: Matrix): int =
     result = 0
 
@@ -75,10 +82,16 @@ when isMainModule:
     m: MatrixImplF64 = initMatrixImplF64(3, 3)
     projectionMatrix: MatrixImplF64 = initMatrixImplF64(3, 3)
 
-  let m1: MatrixImplF64 = m.transposed()
+  m = MatrixImplF64.eye(3,3)
   echo "m: ", m
   echo "m.sum: ", m.sum()
+
+  var m1 = initMatrixImplF64(3, 3)
+  m1[0, 2] = 1.0
+  m1[1, 1] = 1.0
+  m1[2, 0] = 1.0
+
   echo "m1: ", m1
-  echo "transposed: ", m.transposed
-  echo "transposed:det: ", m.transposed.determinant
+  echo "transposed: ", m1.transposed
+  echo "transposed:det: ", m1.transposed.determinant
   setPerspectiveProjection projectionMatrix
