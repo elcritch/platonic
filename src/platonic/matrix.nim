@@ -111,20 +111,20 @@ when isMainModule:
       kInt64
 
     MatrixDyn* = object
-      data: seq[int64]
+      data: seq[byte]
       m, n*: int
       skind: ScalarKind
 
-  template dType*(M: typedesc[MatrixDyn]): typedesc = SomeNumber
+  template dType*(M: typedesc[MatrixDyn]): typedesc = float64
 
   proc initMatrixDyn*(m, n: int, skind: ScalarKind): MatrixDyn = 
-    result.data = newSeq[int64](m*n)
+    result.data = newSeq[byte](m*n*8)
     result.m = m
     result.n = n
     result.skind = skind
 
   proc init*(mat: var MatrixDyn, m, n: int) =
-    mat.data = newSeq[int64](m*n)
+    mat.data = newSeq[byte](m*n*8)
     mat.m = m
     mat.n = n
     # result.skind = skind
@@ -138,7 +138,7 @@ when isMainModule:
     mat.data[m * mat.rows() + n]
 
   proc `[]=`*(M: var MatrixDyn; m, n: int; v: SomeNumber) =
-    M.data[m * M.rows + n] = M.dType(v)
+    M.data[m * M.rows + n] = v
 
   proc runMatrixDyn() =
     var
@@ -155,8 +155,8 @@ when isMainModule:
     m1[2, 0] = 1.0
 
     echo "m1: ", m1
-    echo "transposed: ", m1.transposed
-    echo "transposed:det: ", m1.transposed.determinant
+    echo "transposed: ", m1.transposed()
+    echo "transposed:det: ", m1.transposed().determinant
     setPerspectiveProjection projectionMatrix
   
   runMatrixDyn()
