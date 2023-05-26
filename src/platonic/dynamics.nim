@@ -2,10 +2,10 @@
 import std/typetraits
 
 type
-  DynVector*[T] = concept vec, var vvar, type V
+  Vector*[T] = concept vec, var vvar, type V
     V.typeValue is T
-    V.cols() is int
-    V.size() is int
+    vec.cols() is int
+    vec.size() is int
     
     vec[int, int] is T
     vvar[int, int] = T
@@ -13,7 +13,7 @@ type
     vvar.init()
     type TransposedType = stripGenericParams(V)[T]
 
-  DynMatrix*[T] = concept mat, var mvar, type M
+  Matrix*[T] = concept mat, var mvar, type M
     M.typeValue is T
 
     rows(mat) is int
@@ -26,24 +26,24 @@ type
     type TransposedType = stripGenericParams(M)[T]
     
   
-  DynSquareMatrix*[T] = DynMatrix[T]
+  SquareMatrix*[T] = Matrix[T]
   
-  DynTransform3D* = DynMatrix[float]
+  Transform3D* = Matrix[float]
 
 when isMainModule:
   # Example Procs
   # =============
 
-  proc transposed*(m: DynMatrix): m.TransposedType =
+  proc transposed*(m: Matrix): m.TransposedType =
     result.init(m.rows, m.cols)
     for r in 0 ..< m.rows:
       for c in 0 ..< m.cols:
         result[r, c] = m[c, r]
 
-  proc determinant*(m: DynMatrix): int =
+  proc determinant*(m: Matrix): int =
     result = 0
 
-  proc setPerspectiveProjection*(m: DynTransform3D) =
+  proc setPerspectiveProjection*(m: Transform3D) =
     echo "set"
 
   type
