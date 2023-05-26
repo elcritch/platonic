@@ -75,26 +75,88 @@ when isMainModule:
   proc cols*(mat: MatrixImplF64): int = mat.n
   proc size*(mat: MatrixImplF64): int = mat.m*mat.n
 
-  proc `[]`*(mat: MatrixImplF64; m, n: int): float64 =
+  proc `[]`*(mat: MatrixImplF64; m, n: int): SomeNumber =
     mat.data[m * mat.rows() + n]
 
-  proc `[]=`*(M: var MatrixImplF64; m, n: int; v: float64) =
+  proc `[]=`*(M: var MatrixImplF64; m, n: int; v: SomeNumber) =
     M.data[m * M.rows + n] = v
 
-  var
-    m: MatrixImplF64 = initMatrixImplF64(3, 3)
-    projectionMatrix: MatrixImplF64 = initMatrixImplF64(3, 3)
+  proc runMatrixImplF64() =
+    var
+      m: MatrixImplF64 = initMatrixImplF64(3, 3)
+      projectionMatrix: MatrixImplF64 = initMatrixImplF64(3, 3)
 
-  m = MatrixImplF64.eye(3,3)
-  echo "m: ", m
-  echo "m.sum: ", m.sum()
+    m = MatrixImplF64.eye(3,3)
+    echo "m: ", m
+    echo "m.sum: ", m.sum()
 
-  var m1 = initMatrixImplF64(3, 3)
-  m1[0, 2] = 1.0
-  m1[1, 1] = 1.0
-  m1[2, 0] = 1.0
+    var m1 = initMatrixImplF64(3, 3)
+    m1[0, 2] = 1.0
+    m1[1, 1] = 1.0
+    m1[2, 0] = 1.0
 
-  echo "m1: ", m1
-  echo "transposed: ", m1.transposed
-  echo "transposed:det: ", m1.transposed.determinant
-  setPerspectiveProjection projectionMatrix
+    echo "m1: ", m1
+    echo "transposed: ", m1.transposed
+    echo "transposed:det: ", m1.transposed.determinant
+    setPerspectiveProjection projectionMatrix
+  
+  runMatrixImplF64()
+
+
+when isMainModule:
+  type
+
+    ScalarKind* = enum
+      kFloat64
+      kInt64
+
+    MatrixDyn* = object
+      data: seq[int64]
+      m, n*: int
+      skind: ScalarKind
+
+  template dType*(M: typedesc[MatrixDyn]): typedesc = SomeNumber
+
+  proc initMatrixDyn*(m, n: int, skind: ScalarKind): MatrixDyn = 
+    result.data = newSeq[int64](m*n)
+    result.m = m
+    result.n = n
+    result.skind = skind
+
+  proc init*(mat: var MatrixDyn, m, n: int) =
+    mat.data = newSeq[int64](m*n)
+    mat.m = m
+    mat.n = n
+    # result.skind = skind
+
+  # Adapt the Matrix type to the concept's requirements
+  proc rows*(mat: MatrixDyn): int = mat.m
+  proc cols*(mat: MatrixDyn): int = mat.n
+  proc size*(mat: MatrixDyn): int = mat.m*mat.n
+
+  proc `[]`*(mat: MatrixDyn; m, n: int): SomeNumber =
+    mat.data[m * mat.rows() + n]
+
+  proc `[]=`*(M: var MatrixDyn; m, n: int; v: SomeNumber) =
+    M.data[m * M.rows + n] = M.dType(v)
+
+  proc runMatrixDyn() =
+    var
+      m: MatrixDyn = initMatrixDyn(3, 3, kInt64)
+      projectionMatrix: MatrixDyn = initMatrixDyn(3, 3, kFloat64)
+
+    m = MatrixDyn.eye(3,3)
+    echo "m: ", m
+    echo "m.sum: ", m.sum()
+
+    var m1 = initMatrixDyn(3, 3, kFloat64)
+    m1[0, 2] = 1.0
+    m1[1, 1] = 1.0
+    m1[2, 0] = 1.0
+
+    echo "m1: ", m1
+    echo "transposed: ", m1.transposed
+    echo "transposed:det: ", m1.transposed.determinant
+    setPerspectiveProjection projectionMatrix
+  
+  runMatrixDyn()
