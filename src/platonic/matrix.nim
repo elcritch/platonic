@@ -123,7 +123,7 @@ when isMainModule:
       m, n*: int
       skind: ScalarKind
 
-  template dType*[M: MatrixDyn](typ: typedesc[M]): typeof(NumberDyn) =
+  template dType*[M: MatrixDyn](typ: typedesc[M]): typedesc =
     NumberDyn
 
   proc initMatrixDyn*(m, n: int, skind: ScalarKind): MatrixDyn = 
