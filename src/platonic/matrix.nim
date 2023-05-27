@@ -6,6 +6,7 @@ type
   Matrix* = concept mat, var mvar, type M
     M.dType() is typedesc
 
+    mat.rows() is int
     mat.cols() is int
     mat.size() is int
     
