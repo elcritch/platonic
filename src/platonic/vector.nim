@@ -3,7 +3,7 @@ import std/typetraits
 
 type
 
-  Vector* = concept vec, var vvar, type V
+  Vector* {.explain.} = concept vec, var vvar, type V
     V.dType() is typedesc
 
     vec.rows() is int
@@ -14,21 +14,24 @@ type
   
     vvar.init(int)
 
-    # zero(vec) is V.dType
+    # zero(vec)
+
+    var x: V.dType
+    zero(x, vec)
     # type TransposedType = stripGenericParams(V)[T]
   
   SquareVector* = Vector
   
   Transform3D* = Vector
 
-template zero*[N: Vector](m: N): N.dType = zero(N.dType)
+# template zero*[N: Vector](m: N): N.dType = 0.0
 
 when isMainModule:
   # Example Procs
   # =============
 
   proc sum*[V: Vector](m: V): V.dType =
-    # result = zero(m)
+    result.zero(m)
     for r in 0 ..< m.rows:
       result += m[r]
 
@@ -44,53 +47,55 @@ when isMainModule:
     echo "set"
 
 
-when isMainModule:
-  type
-    VectorImplF64* = object
-      data: seq[float64]
-      m*: int
+# when isMainModule:
+#   type
+#     VectorImplF64* = object
+#       data: seq[float64]
+#       m*: int
 
-  template dType*[V: VectorImplF64](typ: typedesc[V]): typedesc = float64
+#   template dType*[V: VectorImplF64](typ: typedesc[V]): typedesc = float64
 
-  proc initVectorImplF64*(m: int): VectorImplF64 = 
-    result.data = newSeq[VectorImplF64.dType](m)
-    result.m = m
+#   proc zero*(typ: VectorImplF64): float64 = 0.0
 
-  proc init*(vec: var VectorImplF64, m: int) =
-    vec.data = newSeq[float64](m)
-    vec.m = m
+#   proc initVectorImplF64*(m: int): VectorImplF64 = 
+#     result.data = newSeq[VectorImplF64.dType](m)
+#     result.m = m
 
-  template zero*(m: float64): float64 = 0.0
+#   proc init*(vec: var VectorImplF64, m: int) =
+#     vec.data = newSeq[float64](m)
+#     vec.m = m
 
-  # Adapt the Vector type to the concept's requirements
-  proc rows*(vec: VectorImplF64): int = vec.m
-  proc size*(vec: VectorImplF64): int = vec.m
+#   template zero*(m: float64): float64 = 0.0
 
-  proc `[]`*(vec: VectorImplF64; m: int): SomeNumber =
-    vec.data[m]
+#   # Adapt the Vector type to the concept's requirements
+#   proc rows*(vec: VectorImplF64): int = vec.m
+#   proc size*(vec: VectorImplF64): int = vec.m
 
-  proc `[]=`*(vec: var VectorImplF64; m: int; v: SomeNumber) =
-    vec.data[m] = v
+#   proc `[]`*(vec: VectorImplF64; m: int): SomeNumber =
+#     vec.data[m]
 
-  proc runVectorImplF64() =
-    var
-      m: VectorImplF64 = initVectorImplF64(3)
-      projectionVector: VectorImplF64 = initVectorImplF64(3)
+#   proc `[]=`*(vec: var VectorImplF64; m: int; v: SomeNumber) =
+#     vec.data[m] = v
 
-    echo "m: ", m
-    # echo "m.zero: ", m.zero()
-    echo "m.sum: ", m.sum()
+#   proc runVectorImplF64() =
+#     var
+#       m: VectorImplF64 = initVectorImplF64(3)
+#       projectionVector: VectorImplF64 = initVectorImplF64(3)
 
-    var m1 = initVectorImplF64(3)
-    m1[0] = 1.0
-    m1[1] = 1.0
-    m1[2] = 1.0
+#     echo "m: ", m
+#     echo "m.zero: ", m.zero()
+#     echo "m.sum: ", m.sum()
 
-    echo "m1: ", m1
-    echo "m1:sum: ", m1.sum()
-    setPerspectiveProjection projectionVector
+#     var m1 = initVectorImplF64(3)
+#     m1[0] = 1.0
+#     m1[1] = 1.0
+#     m1[2] = 1.0
+
+#     echo "m1: ", m1
+#     echo "m1:sum: ", m1.sum()
+#     setPerspectiveProjection projectionVector
   
-  runVectorImplF64()
+#   runVectorImplF64()
 
 
 when isMainModule:
@@ -118,7 +123,12 @@ when isMainModule:
     vec.m = m
     # result.skind = skind
 
-  proc zero*(m: VectorDyn): Scalar = 0.scalar
+  proc zero*(s: var Scalar, m: VectorDyn) =
+    case m.skind:
+    of kFloat64:
+      s = 0.0.scalar 
+    of kInt64:
+      s = 0.scalar 
 
   # Adapt the Vector type to the concept's requirements
   proc rows*(vec: VectorDyn): int = vec.m
@@ -177,7 +187,7 @@ when isMainModule:
     m1[2] = 1.0.scalar
 
     echo "m1: ", m1
-    echo "m1.zero: ", m1.zero()
+    # echo "m1.zero: ", m1.zero()
     echo "m1:sum: ", m1.sum()
     setPerspectiveProjection projectionVector
   
