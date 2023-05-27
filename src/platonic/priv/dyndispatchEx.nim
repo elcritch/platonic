@@ -11,12 +11,22 @@ type
       of kInt64:
         i64*: int64
     
-proc scalar*(n: int): Scalar = Scalar(skind: kInt64, i64: n)
-proc scalar*(n: float): Scalar = Scalar(skind: kFloat64, f64: n)
+proc scalar*(n: int): Scalar =
+  result = Scalar(skind: kInt64, i64: n)
+proc scalar*(n: float): Scalar =
+  result = Scalar(skind: kFloat64, f64: n)
 
 template zero*(m: Scalar): Scalar = 0.0.scalar
 
+proc initScalar*(k: ScalarKind): Scalar =
+  case k:
+  of kFloat64:
+    result = 0.0'f64.scalar
+  of kInt64:
+    result = 0'i64.scalar
+
 proc `+=`*(s: var Scalar, a: Scalar) =
+  echo "+=: ", "s.kind: ", s.skind, " a.kind: ", a.skind
   assert s.skind == a.skind
   case s.skind:
   of kFloat64:

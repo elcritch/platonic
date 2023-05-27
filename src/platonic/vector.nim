@@ -104,73 +104,61 @@ when isMainModule:
   type
 
     VectorDyn* = object
-      data: pointer
+      data*: pointer
       m*: int
-      skind: ScalarKind
+      skind*: ScalarKind
 
   template dType*[V: VectorDyn](typ: typedesc[V]): typedesc[Scalar] =
     Scalar
   # template dType*[V: VectorDyn](typ: typedesc[V]): typedesc[NumberGen] =
   #   NumberGen
 
+  proc zero*(s: var Scalar, m: VectorDyn) =
+    echo "zero: ", "s.kind: ", s.skind, " m.kind: ", m.skind
+    case m.skind:
+    of kFloat64:
+      s = 0.0'f64.scalar 
+    of kInt64:
+      s = 0'i64.scalar 
+    echo "zero: ", "s.kind: ", s.skind, " m.kind: ", m.skind
+
+  proc `[]=`*(vec: var VectorDyn; m: int; v: Scalar) =
+    echo "[]=: ", "s.kind: ", vec.skind, " m.kind: ", v.skind
+    case vec.skind:
+    of kFloat64:
+      let data = cast[ptr UncheckedArray[float64]](vec.data)
+      data[m] = v.f64
+    of kInt64:
+      let data = cast[ptr UncheckedArray[int64]](vec.data)
+      data[m] = v.i64
+
+  proc `[]`*(vec: VectorDyn; m: int): Scalar =
+    case vec.skind:
+    of kFloat64:
+      let data = cast[ptr UncheckedArray[float64]](vec.data)
+      result = data[m].scalar()
+    of kInt64:
+      let data = cast[ptr UncheckedArray[int64]](vec.data)
+      result = data[m].scalar()
+
   proc initVectorDyn*(m: int, skind: ScalarKind): VectorDyn = 
     result.data = alloc0[byte](m*8)
     result.m = m
     result.skind = skind
+    for i in 0 ..< m:
+      let x = initScalar(skind)
+      echo "x: ", x.repr, " skind: ", skind
+      result[i] = x
 
   proc init*(vec: var VectorDyn, m: int) =
     vec.data = alloc0[byte](m*8)
     vec.m = m
     # result.skind = skind
 
-  proc zero*(s: var Scalar, m: VectorDyn) =
-    case m.skind:
-    of kFloat64:
-      s = 0.0.scalar 
-    of kInt64:
-      s = 0.scalar 
-
   # Adapt the Vector type to the concept's requirements
   proc rows*(vec: VectorDyn): int = vec.m
   proc size*(vec: VectorDyn): int = vec.m
 
-  # proc `[]`*(vec: VectorDyn; m: int): float64 =
-  #   case vec.skind:
-  #   of kFloat64:
-  #     let data = cast[ptr UncheckedArray[float64]](vec.data)
-  #     data[m]
-  #   of kInt64:
-  #     let data = cast[ptr UncheckedArray[int64]](vec.data)
-  #     data[m].toBiggestFloat
-
-  # proc `[]=`*(vec: var VectorDyn; m: int; v: Scalar) =
-  #   case vec.skind:
-  #   of kFloat64:
-  #     let data = cast[ptr UncheckedArray[float64]](vec.data)
-  #     data[m] = v
-  #   of kInt64:
-  #     let data = cast[ptr UncheckedArray[int64]](vec.data)
-  #     data[m] = v.toBiggestInt
-
-  proc `[]`*(vec: VectorDyn; m: int): Scalar =
-    discard
-    # case vec.skind:
-    # of kFloat64:
-    #   let data = cast[ptr UncheckedArray[float64]](vec.data)
-    #   Scalar(skind: kFloat64, f64: data[m])
-    # of kInt64:
-    #   let data = cast[ptr UncheckedArray[int64]](vec.data)
-    #   Scalar(skind: kInt64, i64: data[m])
-
-  proc `[]=`*(vec: var VectorDyn; m: int; v: Scalar) =
-    discard
-    # case vec.skind:
-    # of kFloat64:
-    #   let data = cast[ptr UncheckedArray[float64]](vec.data)
-    #   data[m] = v
-    # of kInt64:
-    #   let data = cast[ptr UncheckedArray[int64]](vec.data)
-    #   data[m] = v.toBiggestInt
 
   proc runVectorDyn() =
     var
