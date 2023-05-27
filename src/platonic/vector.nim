@@ -32,12 +32,10 @@ when isMainModule:
     for r in 0 ..< m.rows:
       result += m[r]
 
-  proc eye*[M: Vector](typ: typedesc[M], m, n: int, value: M.dType = 1): M =
-    result.init(m, n)
+  proc ones*[M: Vector](typ: typedesc[M], m: int, value: M.dType = 1): M =
+    result.init(m)
     for r in 0 ..< result.rows:
-      for c in 0 ..< result.cols:
-        if r == c:
-          result[r, c] = value
+      result[r] = value
 
   proc determinant*[M: Vector](m: M): M.dType =
     result = -1
@@ -92,100 +90,96 @@ when isMainModule:
   runVectorImplF64()
 
 
-# when isMainModule:
-#   type
+when isMainModule:
+  type
 
-#     ScalarKind* = enum
-#       kFloat64
-#       kInt64
+    ScalarKind* = enum
+      kFloat64
+      kInt64
 
-#     NumberGen* = object
-#       case skind*: ScalarKind
-#       of kFloat64:
-#         f64*: float64
-#       of kInt64:
-#         i64*: int64
+    NumberGen* = object
+      case skind*: ScalarKind
+      of kFloat64:
+        f64*: float64
+      of kInt64:
+        i64*: int64
     
-#     VectorDyn* = object
-#       data: pointer
-#       m, n*: int
-#       skind: ScalarKind
+    VectorDyn* = object
+      data: pointer
+      m*: int
+      skind: ScalarKind
 
-#   template dType*[M: VectorDyn](typ: typedesc[M]): typedesc[float64] =
-#     float64
-#   # template dType*[M: VectorDyn](typ: typedesc[M]): typedesc[NumberGen] =
-#   #   NumberGen
+  template dType*[M: VectorDyn](typ: typedesc[M]): typedesc[float64] =
+    float64
+  # template dType*[M: VectorDyn](typ: typedesc[M]): typedesc[NumberGen] =
+  #   NumberGen
 
-#   proc initVectorDyn*(m, n: int, skind: ScalarKind): VectorDyn = 
-#     result.data = alloc0[byte](m*n*8)
-#     result.m = m
-#     result.n = n
-#     result.skind = skind
+  proc initVectorDyn*(m: int, skind: ScalarKind): VectorDyn = 
+    result.data = alloc0[byte](m*8)
+    result.m = m
+    result.skind = skind
 
-#   proc init*(vec: var VectorDyn, m, n: int) =
-#     vec.data = alloc0[byte](m*n*8)
-#     vec.m = m
-#     vec.n = n
-#     # result.skind = skind
+  proc init*(vec: var VectorDyn, m: int) =
+    vec.data = alloc0[byte](m*8)
+    vec.m = m
+    # result.skind = skind
 
-#   # Adapt the Vector type to the concept's requirements
-#   proc rows*(vec: VectorDyn): int = vec.m
-#   proc cols*(vec: VectorDyn): int = vec.n
-#   proc size*(vec: VectorDyn): int = vec.m*vec.n
+  # Adapt the Vector type to the concept's requirements
+  proc rows*(vec: VectorDyn): int = vec.m
+  proc size*(vec: VectorDyn): int = vec.m
 
-#   proc `[]`*(vec: VectorDyn; m, n: int): float64 =
-#     case vec.skind:
-#     of kFloat64:
-#       let data = cast[ptr UncheckedArray[float64]](vec.data)
-#       data[m * vec.rows() + n]
-#     of kInt64:
-#       let data = cast[ptr UncheckedArray[int64]](vec.data)
-#       data[m * vec.rows() + n].toBiggestFloat
+  proc `[]`*(vec: VectorDyn; m: int): float64 =
+    case vec.skind:
+    of kFloat64:
+      let data = cast[ptr UncheckedArray[float64]](vec.data)
+      data[m]
+    of kInt64:
+      let data = cast[ptr UncheckedArray[int64]](vec.data)
+      data[m].toBiggestFloat
 
-#   proc `[]=`*(vec: var VectorDyn; m, n: int; v: float64) =
-#     case vec.skind:
-#     of kFloat64:
-#       let data = cast[ptr UncheckedArray[float64]](vec.data)
-#       data[m * vec.rows + n] = v
-#     of kInt64:
-#       let data = cast[ptr UncheckedArray[int64]](vec.data)
-#       data[m * vec.rows + n] = v.toBiggestInt
+  proc `[]=`*(vec: var VectorDyn; m: int; v: float64) =
+    case vec.skind:
+    of kFloat64:
+      let data = cast[ptr UncheckedArray[float64]](vec.data)
+      data[m] = v
+    of kInt64:
+      let data = cast[ptr UncheckedArray[int64]](vec.data)
+      data[m] = v.toBiggestInt
 
-#   # proc `[]`*(vec: VectorDyn; m, n: int): NumberDyn =
-#   #   case vec.skind:
-#   #   of kFloat64:
-#   #     let data = cast[ptr UncheckedArray[float64]](vec.data)
-#   #     NumberDyn(skind: kFloat64, f64: data[m * vec.rows() + n])
-#   #   of kInt64:
-#   #     let data = cast[ptr UncheckedArray[int64]](vec.data)
-#   #     NumberDyn(skind: kInt64, i64: data[m * vec.rows() + n])
+  # proc `[]`*(vec: VectorDyn; m: int): NumberDyn =
+  #   case vec.skind:
+  #   of kFloat64:
+  #     let data = cast[ptr UncheckedArray[float64]](vec.data)
+  #     NumberDyn(skind: kFloat64, f64: data[m * vec.rows() + n])
+  #   of kInt64:
+  #     let data = cast[ptr UncheckedArray[int64]](vec.data)
+  #     NumberDyn(skind: kInt64, i64: data[m * vec.rows() + n])
 
-#   # proc `[]=`*(vec: var VectorDyn; m, n: int; v: float64) =
-#   #   case vec.skind:
-#   #   of kFloat64:
-#   #     let data = cast[ptr UncheckedArray[float64]](vec.data)
-#   #     data[m * vec.rows + n] = v
-#   #   of kInt64:
-#   #     let data = cast[ptr UncheckedArray[int64]](vec.data)
-#   #     data[m * vec.rows + n] = v.toBiggestInt
+  # proc `[]=`*(vec: var VectorDyn; m: int; v: float64) =
+  #   case vec.skind:
+  #   of kFloat64:
+  #     let data = cast[ptr UncheckedArray[float64]](vec.data)
+  #     data[m * vec.rows + n] = v
+  #   of kInt64:
+  #     let data = cast[ptr UncheckedArray[int64]](vec.data)
+  #     data[m * vec.rows + n] = v.toBiggestInt
 
-#   proc runVectorDyn() =
-#     var
-#       m: VectorDyn = initVectorDyn(3, 3, kInt64)
-#       projectionVector: VectorDyn = initVectorDyn(3, 3, kFloat64)
+  proc runVectorDyn() =
+    var
+      m: VectorDyn = initVectorDyn(3, kInt64)
+      projectionVector: VectorDyn = initVectorDyn(3, kFloat64)
 
-#     m = VectorDyn.eye(3,3)
-#     echo "m: ", m
-#     echo "m.sum: ", m.sum()
+    m = VectorDyn.ones(3)
+    echo "m: ", m
+    echo "m.sum: ", m.sum()
 
-#     var m1 = initVectorDyn(3, 3, kFloat64)
-#     m1[0, 2] = 1.0
-#     m1[1, 1] = 1.0
-#     m1[2, 0] = 1.0
+    var m1 = initVectorDyn(3, kFloat64)
+    m1[0] = 1.0
+    m1[1] = 1.0
+    m1[2] = 1.0
 
-#     echo "m1: ", m1
-#     echo "transposed: ", m1.transposed()
-#     echo "transposed:det: ", m1.transposed().determinant
-#     setPerspectiveProjection projectionVector
+    echo "m1: ", m1
+    echo "m1:sum: ", m1.sum()
+    setPerspectiveProjection projectionVector
   
-#   runVectorDyn()
+  runVectorDyn()
