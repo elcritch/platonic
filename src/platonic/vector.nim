@@ -14,17 +14,12 @@ type
   
     vvar.init(int)
 
-    # zero(vec)
-
     var x: V.dType
     zero(x, vec)
-    # type TransposedType = stripGenericParams(V)[T]
   
   SquareVector* = Vector
   
   Transform3D* = Vector
-
-# template zero*[N: Vector](m: N): N.dType = 0.0
 
 when isMainModule:
   # Example Procs
@@ -162,7 +157,6 @@ when isMainModule:
       m: VectorDyn = initVectorDyn(3, kInt64)
       projectionVector: VectorDyn = initVectorDyn(3, kFloat64)
 
-    # m = VectorDyn.ones(3.scalar)
     echo "m: ", m
     echo "m.sum: ", $sum(m)
 
@@ -172,7 +166,6 @@ when isMainModule:
     m1[2] = 1.0.scalar
 
     echo "m1: ", m1
-    # echo "m1.zero: ", m1.zero()
     echo "m1:sum: ", m1.sum()
     setPerspectiveProjection projectionVector
   
