@@ -14,6 +14,17 @@ type
 proc scalar*(n: int): Scalar = Scalar(skind: kInt64, i64: n)
 proc scalar*(n: float): Scalar = Scalar(skind: kFloat64, f64: n)
 
+template zero*[N: Scalar](m: typedesc[N]): N = 0.scalar
+template default*[N: Scalar](m: typedesc[N]): N = 0.scalar
+
+proc `+=`*(s: var Scalar, a: Scalar) =
+  assert s.skind == a.skind
+  case s.skind:
+  of kFloat64:
+    s.f64 += a.f64
+  of kInt64:
+    s.i64 += a.i64
+
 proc `$`*(s: Scalar): string =
   case s.skind:
   of kFloat64:
