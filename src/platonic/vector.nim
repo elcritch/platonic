@@ -91,19 +91,10 @@ when isMainModule:
 
 
 when isMainModule:
+  import ./priv/dyndispatchEx
+
   type
 
-    ScalarKind* = enum
-      kFloat64
-      kInt64
-
-    NumberGen* = object
-      case skind*: ScalarKind
-      of kFloat64:
-        f64*: float64
-      of kInt64:
-        i64*: int64
-    
     VectorDyn* = object
       data: pointer
       m*: int
