@@ -17,10 +17,6 @@ type
     var x: V.dType
     zero(x, vec)
   
-  SquareVector* = Vector
-  
-  Transform3D* = Vector
-
 when isMainModule:
   # Example Procs
   # =============
