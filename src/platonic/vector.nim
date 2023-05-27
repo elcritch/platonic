@@ -14,23 +14,21 @@ type
   
     vvar.init(int)
 
-    zero(V.dType) is V.dType
-    default(V.dType) is V.dType
+    # zero(vec) is V.dType
     # type TransposedType = stripGenericParams(V)[T]
   
   SquareVector* = Vector
   
   Transform3D* = Vector
 
-template zero*[N: SomeNumber](m: typedesc[N]): N = 0
-template default*[N: SomeNumber](m: typedesc[N]): N = 0
+template zero*[N: Vector](m: N): N.dType = zero(N.dType)
 
 when isMainModule:
   # Example Procs
   # =============
 
   proc sum*[V: Vector](m: V): V.dType =
-    # result = zero(V.dType)
+    # result = zero(m)
     for r in 0 ..< m.rows:
       result += m[r]
 
@@ -62,6 +60,8 @@ when isMainModule:
     vec.data = newSeq[float64](m)
     vec.m = m
 
+  template zero*(m: float64): float64 = 0.0
+
   # Adapt the Vector type to the concept's requirements
   proc rows*(vec: VectorImplF64): int = vec.m
   proc size*(vec: VectorImplF64): int = vec.m
@@ -78,6 +78,7 @@ when isMainModule:
       projectionVector: VectorImplF64 = initVectorImplF64(3)
 
     echo "m: ", m
+    # echo "m.zero: ", m.zero()
     echo "m.sum: ", m.sum()
 
     var m1 = initVectorImplF64(3)
@@ -116,6 +117,8 @@ when isMainModule:
     vec.data = alloc0[byte](m*8)
     vec.m = m
     # result.skind = skind
+
+  proc zero*(m: VectorDyn): Scalar = 0.scalar
 
   # Adapt the Vector type to the concept's requirements
   proc rows*(vec: VectorDyn): int = vec.m
@@ -174,6 +177,7 @@ when isMainModule:
     m1[2] = 1.0.scalar
 
     echo "m1: ", m1
+    echo "m1.zero: ", m1.zero()
     echo "m1:sum: ", m1.sum()
     setPerspectiveProjection projectionVector
   
