@@ -3,18 +3,20 @@ import std/typetraits
 
 type
 
-  Vector* = concept vec, var vvar, type M
-    M.dType() is typedesc
+  Vector* = concept vec, var vvar, type V
+    V.dType() is typedesc
 
     vec.rows() is int
     vec.size() is int
     
-    vec[int] is M.dType
-    vvar[int] = M.dType
+    vec[int] is V.dType
+    vvar[int] = V.dType
   
     vvar.init(int)
 
-    # type TransposedType = stripGenericParams(M)[T]
+    zero(V.dType) is V.dType
+    default(V.dType) is V.dType
+    # type TransposedType = stripGenericParams(V)[T]
   
   SquareVector* = Vector
   
@@ -27,17 +29,17 @@ when isMainModule:
   # Example Procs
   # =============
 
-  proc sum*[M: Vector](m: M): M.dType =
-    result = zero(M.dType)
+  proc sum*[V: Vector](m: V): V.dType =
+    result = zero(V.dType)
     for r in 0 ..< m.rows:
       result += m[r]
 
-  proc ones*[M: Vector](typ: typedesc[M], m: int, value: M.dType = 1): M =
+  proc ones*[V: Vector](typ: typedesc[V], m: int, value: V.dType = 1): V =
     result.init(m)
     for r in 0 ..< result.rows:
       result[r] = value
 
-  proc determinant*[M: Vector](m: M): M.dType =
+  proc determinant*[V: Vector](m: V): V.dType =
     result = -1
 
   proc setPerspectiveProjection*(m: Transform3D) =
@@ -50,7 +52,7 @@ when isMainModule:
       data: seq[float64]
       m*: int
 
-  template dType*[M: VectorImplF64](typ: typedesc[M]): typedesc = float64
+  template dType*[V: VectorImplF64](typ: typedesc[V]): typedesc = float64
 
   proc initVectorImplF64*(m: int): VectorImplF64 = 
     result.data = newSeq[VectorImplF64.dType](m)
@@ -90,87 +92,89 @@ when isMainModule:
   runVectorImplF64()
 
 
-when isMainModule:
-  import ./priv/dyndispatchEx
+# when isMainModule:
+#   import ./priv/dyndispatchEx
 
-  type
+#   type
 
-    VectorDyn* = object
-      data: pointer
-      m*: int
-      skind: ScalarKind
+#     VectorDyn* = object
+#       data: pointer
+#       m*: int
+#       skind: ScalarKind
 
-  template dType*[M: VectorDyn](typ: typedesc[M]): typedesc[float64] =
-    float64
-  # template dType*[M: VectorDyn](typ: typedesc[M]): typedesc[NumberGen] =
-  #   NumberGen
+#   template dType*[V: VectorDyn](typ: typedesc[V]): typedesc[Scalar] =
+#     Scalar
+#   # template dType*[V: VectorDyn](typ: typedesc[V]): typedesc[NumberGen] =
+#   #   NumberGen
 
-  proc initVectorDyn*(m: int, skind: ScalarKind): VectorDyn = 
-    result.data = alloc0[byte](m*8)
-    result.m = m
-    result.skind = skind
+#   proc initVectorDyn*(m: int, skind: ScalarKind): VectorDyn = 
+#     result.data = alloc0[byte](m*8)
+#     result.m = m
+#     result.skind = skind
 
-  proc init*(vec: var VectorDyn, m: int) =
-    vec.data = alloc0[byte](m*8)
-    vec.m = m
-    # result.skind = skind
+#   proc init*(vec: var VectorDyn, m: int) =
+#     vec.data = alloc0[byte](m*8)
+#     vec.m = m
+#     # result.skind = skind
 
-  # Adapt the Vector type to the concept's requirements
-  proc rows*(vec: VectorDyn): int = vec.m
-  proc size*(vec: VectorDyn): int = vec.m
+#   # Adapt the Vector type to the concept's requirements
+#   proc rows*(vec: VectorDyn): int = vec.m
+#   proc size*(vec: VectorDyn): int = vec.m
 
-  proc `[]`*(vec: VectorDyn; m: int): float64 =
-    case vec.skind:
-    of kFloat64:
-      let data = cast[ptr UncheckedArray[float64]](vec.data)
-      data[m]
-    of kInt64:
-      let data = cast[ptr UncheckedArray[int64]](vec.data)
-      data[m].toBiggestFloat
+#   # proc `[]`*(vec: VectorDyn; m: int): float64 =
+#   #   case vec.skind:
+#   #   of kFloat64:
+#   #     let data = cast[ptr UncheckedArray[float64]](vec.data)
+#   #     data[m]
+#   #   of kInt64:
+#   #     let data = cast[ptr UncheckedArray[int64]](vec.data)
+#   #     data[m].toBiggestFloat
 
-  proc `[]=`*(vec: var VectorDyn; m: int; v: float64) =
-    case vec.skind:
-    of kFloat64:
-      let data = cast[ptr UncheckedArray[float64]](vec.data)
-      data[m] = v
-    of kInt64:
-      let data = cast[ptr UncheckedArray[int64]](vec.data)
-      data[m] = v.toBiggestInt
+#   # proc `[]=`*(vec: var VectorDyn; m: int; v: Scalar) =
+#   #   case vec.skind:
+#   #   of kFloat64:
+#   #     let data = cast[ptr UncheckedArray[float64]](vec.data)
+#   #     data[m] = v
+#   #   of kInt64:
+#   #     let data = cast[ptr UncheckedArray[int64]](vec.data)
+#   #     data[m] = v.toBiggestInt
 
-  # proc `[]`*(vec: VectorDyn; m: int): NumberDyn =
-  #   case vec.skind:
-  #   of kFloat64:
-  #     let data = cast[ptr UncheckedArray[float64]](vec.data)
-  #     NumberDyn(skind: kFloat64, f64: data[m * vec.rows() + n])
-  #   of kInt64:
-  #     let data = cast[ptr UncheckedArray[int64]](vec.data)
-  #     NumberDyn(skind: kInt64, i64: data[m * vec.rows() + n])
+#   proc `[]`*(vec: VectorDyn; m: int): Scalar =
+#     discard
+#     # case vec.skind:
+#     # of kFloat64:
+#     #   let data = cast[ptr UncheckedArray[float64]](vec.data)
+#     #   Scalar(skind: kFloat64, f64: data[m])
+#     # of kInt64:
+#     #   let data = cast[ptr UncheckedArray[int64]](vec.data)
+#     #   Scalar(skind: kInt64, i64: data[m])
 
-  # proc `[]=`*(vec: var VectorDyn; m: int; v: float64) =
-  #   case vec.skind:
-  #   of kFloat64:
-  #     let data = cast[ptr UncheckedArray[float64]](vec.data)
-  #     data[m * vec.rows + n] = v
-  #   of kInt64:
-  #     let data = cast[ptr UncheckedArray[int64]](vec.data)
-  #     data[m * vec.rows + n] = v.toBiggestInt
+#   proc `[]=`*(vec: var VectorDyn; m: int; v: Scalar) =
+#     discard
+#     # case vec.skind:
+#     # of kFloat64:
+#     #   let data = cast[ptr UncheckedArray[float64]](vec.data)
+#     #   data[m] = v
+#     # of kInt64:
+#     #   let data = cast[ptr UncheckedArray[int64]](vec.data)
+#     #   data[m] = v.toBiggestInt
 
-  proc runVectorDyn() =
-    var
-      m: VectorDyn = initVectorDyn(3, kInt64)
-      projectionVector: VectorDyn = initVectorDyn(3, kFloat64)
+#   proc runVectorDyn() =
+#     var
+#       m: VectorDyn = initVectorDyn(3, kInt64)
+#       projectionVector: VectorDyn = initVectorDyn(3, kFloat64)
 
-    m = VectorDyn.ones(3)
-    echo "m: ", m
-    echo "m.sum: ", m.sum()
+#     m = VectorDyn.ones(3.scalar)
+#     echo "m: ", m
+#     echo "m.sum: ", $sum(m)
 
-    var m1 = initVectorDyn(3, kFloat64)
-    m1[0] = 1.0
-    m1[1] = 1.0
-    m1[2] = 1.0
+#     var m1 = initVectorDyn(3, kFloat64)
+#     m1[0] = 1.0.scalar
+#     m1[1] = 1.0.scalar
+#     m1[2] = 1.0.scalar
 
-    echo "m1: ", m1
-    echo "m1:sum: ", m1.sum()
-    setPerspectiveProjection projectionVector
+#     echo "m1: ", m1
+#     echo "m1:sum: ", m1.sum()
+#     setPerspectiveProjection projectionVector
   
-  runVectorDyn()
+#   runVectorDyn()
