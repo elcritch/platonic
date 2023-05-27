@@ -47,55 +47,56 @@ when isMainModule:
     echo "set"
 
 
-# when isMainModule:
-#   type
-#     VectorImplF64* = object
-#       data: seq[float64]
-#       m*: int
+when isMainModule:
+  type
+    VectorImplF64* = object
+      data: seq[float64]
+      m*: int
 
-#   template dType*[V: VectorImplF64](typ: typedesc[V]): typedesc = float64
+  template dType*[V: VectorImplF64](typ: typedesc[V]): typedesc = float64
 
-#   proc zero*(typ: VectorImplF64): float64 = 0.0
+  proc zero*(typ: VectorImplF64): float64 = 0.0
 
-#   proc initVectorImplF64*(m: int): VectorImplF64 = 
-#     result.data = newSeq[VectorImplF64.dType](m)
-#     result.m = m
+  proc initVectorImplF64*(m: int): VectorImplF64 = 
+    result.data = newSeq[VectorImplF64.dType](m)
+    result.m = m
 
-#   proc init*(vec: var VectorImplF64, m: int) =
-#     vec.data = newSeq[float64](m)
-#     vec.m = m
+  proc init*(vec: var VectorImplF64, m: int) =
+    vec.data = newSeq[float64](m)
+    vec.m = m
 
-#   template zero*(m: float64): float64 = 0.0
+  proc zero*(s: var float64, m: VectorImplF64) =
+    s = 0.0
 
-#   # Adapt the Vector type to the concept's requirements
-#   proc rows*(vec: VectorImplF64): int = vec.m
-#   proc size*(vec: VectorImplF64): int = vec.m
+  # Adapt the Vector type to the concept's requirements
+  proc rows*(vec: VectorImplF64): int = vec.m
+  proc size*(vec: VectorImplF64): int = vec.m
 
-#   proc `[]`*(vec: VectorImplF64; m: int): SomeNumber =
-#     vec.data[m]
+  proc `[]`*(vec: VectorImplF64; m: int): SomeNumber =
+    vec.data[m]
 
-#   proc `[]=`*(vec: var VectorImplF64; m: int; v: SomeNumber) =
-#     vec.data[m] = v
+  proc `[]=`*(vec: var VectorImplF64; m: int; v: SomeNumber) =
+    vec.data[m] = v
 
-#   proc runVectorImplF64() =
-#     var
-#       m: VectorImplF64 = initVectorImplF64(3)
-#       projectionVector: VectorImplF64 = initVectorImplF64(3)
+  proc runVectorImplF64() =
+    var
+      m: VectorImplF64 = initVectorImplF64(3)
+      projectionVector: VectorImplF64 = initVectorImplF64(3)
 
-#     echo "m: ", m
-#     echo "m.zero: ", m.zero()
-#     echo "m.sum: ", m.sum()
+    echo "m: ", m
+    echo "m.zero: ", m.zero()
+    echo "m.sum: ", m.sum()
 
-#     var m1 = initVectorImplF64(3)
-#     m1[0] = 1.0
-#     m1[1] = 1.0
-#     m1[2] = 1.0
+    var m1 = initVectorImplF64(3)
+    m1[0] = 1.0
+    m1[1] = 1.0
+    m1[2] = 1.0
 
-#     echo "m1: ", m1
-#     echo "m1:sum: ", m1.sum()
-#     setPerspectiveProjection projectionVector
+    echo "m1: ", m1
+    echo "m1:sum: ", m1.sum()
+    setPerspectiveProjection projectionVector
   
-#   runVectorImplF64()
+  runVectorImplF64()
 
 
 when isMainModule:
@@ -114,16 +115,13 @@ when isMainModule:
   #   NumberGen
 
   proc zero*(s: var Scalar, m: VectorDyn) =
-    echo "zero: ", "s.kind: ", s.skind, " m.kind: ", m.skind
     case m.skind:
     of kFloat64:
       s = 0.0'f64.scalar 
     of kInt64:
       s = 0'i64.scalar 
-    echo "zero: ", "s.kind: ", s.skind, " m.kind: ", m.skind
 
   proc `[]=`*(vec: var VectorDyn; m: int; v: Scalar) =
-    echo "[]=: ", "s.kind: ", vec.skind, " m.kind: ", v.skind
     case vec.skind:
     of kFloat64:
       let data = cast[ptr UncheckedArray[float64]](vec.data)
@@ -147,7 +145,6 @@ when isMainModule:
     result.skind = skind
     for i in 0 ..< m:
       let x = initScalar(skind)
-      echo "x: ", x.repr, " skind: ", skind
       result[i] = x
 
   proc init*(vec: var VectorDyn, m: int) =

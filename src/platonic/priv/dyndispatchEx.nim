@@ -26,7 +26,6 @@ proc initScalar*(k: ScalarKind): Scalar =
     result = 0'i64.scalar
 
 proc `+=`*(s: var Scalar, a: Scalar) =
-  echo "+=: ", "s.kind: ", s.skind, " a.kind: ", a.skind
   assert s.skind == a.skind
   case s.skind:
   of kFloat64:
